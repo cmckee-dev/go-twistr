@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -9,7 +10,12 @@ import (
 )
 
 const (
-	errVariableNotSet = "Environment variable required but not set."
+	errVariableNotSet = "environment variable required but not set."
+
+	twitterConsumerKey       = "TWITTER_CONSUMER_KEY"
+	twitterConsumerSecret    = "TWITTER_CONSUMER_SECRET"
+	twitterAccessToken       = "TWITTER_ACCESS_TOKEN"
+	twitterAccessTokenSecret = "TWITTER_ACCESS_TOKEN_SECRET"
 
 	VERSION = "v0.1.0"
 )
@@ -21,33 +27,34 @@ type Credentials struct {
 	AccessTokenSecret string
 }
 
-func getEnvConfig() map[string]string {
-	envConfig := make(map[string]string)
+func getTwitterCredentials() *Credentials {
 
-	twitterConsumerKey, ok := os.LookupEnv("TWITTER_CONSUMER_KEY")
+	_, ok := os.LookupEnv(twitterConsumerKey)
 	if !ok {
-		log.Fatal(errVariableNotSet)
+		log.Fatalf("%s %s\n", twitterConsumerKey, errVariableNotSet)
 	}
-	envConfig["twitterConsumerKey"] = twitterConsumerKey
 
-	twitterConsumerSecret, ok := os.LookupEnv("TWITTER_CONSUMER_SECRET")
+	_, ok = os.LookupEnv(twitterConsumerSecret)
 	if !ok {
-		log.Fatal(errVariableNotSet)
+		log.Fatalf("%s %s\n", twitterConsumerSecret, errVariableNotSet)
 	}
-	envConfig["twitterConsumerSecret"] = twitterConsumerSecret
 
-	twitterAccessToken, ok := os.LookupEnv("TWITTER_ACCESS_TOKEN") if !ok {
-		log.Fatal(errVariableNotSet)
-	}
-	envConfig["twitterAccessToken"] = twitterAccessToken
-
-	twitterAccessTokenSecret, ok := os.LookupEnv("TWITTER_ACCESS_TOKEN_SECRET")
+	_, ok = os.LookupEnv(twitterAccessToken)
 	if !ok {
-		log.Fatal(errVariableNotSet)
+		log.Fatalf("%s %s\n", twitterAccessToken, errVariableNotSet)
 	}
-	envConfig["twitterAccessTokenSecret"] = twitterAccessTokenSecret
 
-	return envConfig
+	_, ok = os.LookupEnv(twitterAccessTokenSecret)
+	if !ok {
+		log.Fatalf("%s %s\n", twitterAccessTokenSecret, errVariableNotSet)
+	}
+
+	return &Credentials{
+		ConsumerKey:       os.Getenv(twitterConsumerKey),
+		ConsumerSecret:    os.Getenv(twitterConsumerSecret),
+		AccessToken:       os.Getenv(twitterAccessToken),
+		AccessTokenSecret: os.Getenv(twitterAccessTokenSecret),
+	}
 }
 
 func getTwitterClient(creds *Credentials) (*twitter.Client, error) {
@@ -77,16 +84,19 @@ func main() {
 	log.Println("The Go-Twitter-Stream")
 	log.Println(VERSION)
 
-	envConfig := getEnvConfig
+	creds := Credentials{
+		ConsumerKey:       os.Getenv(twitterConsumerKey),
+		ConsumerSecret:    os.Getenv(twitterConsumerSecret),
+		AccessToken:       os.Getenv(twitterAccessToken),
+		AccessTokenSecret: os.Getenv(twitterAccessTokenSecret),
+	}
 
-	log.Println(envConfig)
+	client, err := getTwitterClient(&creds)
 
-	// creds := Credentials{
-	// 	AccessToken:       envConfig["twitterAccessToken"],
-	// 	AccessTokenSecret: envConfig["twitterAccessTokenSecret"],
-	// 	ConsumerKey:       envConfig["twitterConsumerKey"],
-	// 	ConsumerSecret:    envConfig["twitterConsumerSecret"],
-	// }
+	if err != nil {
+		log.Println("Error getting twitter client.")
+		log.Println(err)
+	}
 
-	// log.Printf("%+v\n", creds)
+	fmt.Printf("%+v\n", client)
 }

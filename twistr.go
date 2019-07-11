@@ -90,10 +90,21 @@ func sendTweet(message string, client *twitter.Client) {
 	log.Printf("%+v\n", tweet)
 }
 
+func queryTweets(query string, client *twitter.Client) {
+	search, resp, err := client.Search.Tweets(&twitter.SearchTweetParams{
+		Query: query,
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("%+v\n", resp)
+	log.Printf("%+v\n", search)
+}
+
 func main() {
-	log.Println("Starting Twistr")
-	log.Println("The Go-Twitter-Stream")
-	log.Println(VERSION)
+	log.Printf("Starting Twistr %s\n", VERSION)
 
 	creds := Credentials{
 		ConsumerKey:       os.Getenv(twitterConsumerKey),
@@ -113,4 +124,7 @@ func main() {
 
 	// msg := "This is a test tweet from Twistr, a golang project."
 	// sendTweet(msg, client)
+
+	// q := "bitcoin"
+	// queryTweets(q, client)
 }

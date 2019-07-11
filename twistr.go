@@ -79,6 +79,17 @@ func getTwitterClient(creds *Credentials) (*twitter.Client, error) {
 	return client, nil
 }
 
+func sendTweet(message string, client *twitter.Client) {
+	tweet, resp, err := client.Statuses.Update(message, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("%+v\n", resp)
+	log.Printf("%+v\n", tweet)
+}
+
 func main() {
 	log.Println("Starting Twistr")
 	log.Println("The Go-Twitter-Stream")
@@ -99,4 +110,7 @@ func main() {
 	}
 
 	fmt.Printf("%+v\n", client)
+
+	// msg := "This is a test tweet from Twistr, a golang project."
+	// sendTweet(msg, client)
 }
